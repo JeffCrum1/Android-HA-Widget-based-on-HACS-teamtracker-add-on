@@ -1,0 +1,18 @@
+{{ '<p style="text-align: start"; "font-weight: bold"><tt>' }}
+{%- set ns = namespace(holdleague='') -%}
+{%- set teams = integration_entities("teamtracker") | expand | selectattr('state', 'eq', 'IN') | selectattr('attributes.team_homeaway', 'eq', 'away') | sort(attribute='attributes.league,attributes.date,attributes.team_abbr') | map(attribute='entity_id') | list -%}
+{%- for team in teams -%}
+  {%- if state_attr(team, 'league') != ns.holdleague -%}
+    {{ '' if loop.first else '<br>' }}
+    {%- set ns.holdleague = state_attr(team, 'league') %}
+    {{ state_attr(team, 'league')~'<br>' }}
+  {%- endif %}
+  {%- set team_possession = '*' if state_attr(team, 'possession') == state_attr(team, 'team_id') else '&nbsp;' -%}
+  {%- set opponent_possession = '*' if state_attr(team, 'possession') == state_attr(team, 'opponent_id') else '&nbsp;' -%}
+  {%- set teamscore = ('&nbsp;' if state_attr(team, 'team_score') | length < 2 else '')~state_attr(team, 'team_score') %}
+  {%- set opponentscore = state_attr(team, 'opponent_score')~('&nbsp;' if state_attr(team, 'opponent_score') | length < 2 else '') %}
+  {%- set teamabbr = state_attr(team, 'team_abbr')~('&nbsp;' if state_attr(team, 'team_abbr') | length < 3 else '') %}
+  {%- set opponentabbr = state_attr(team, 'opponent_abbr')~('&nbsp;' if state_attr(team, 'opponent_abbr') | length < 3 else '') %}
+  {{ '&nbsp;'~team_possession~teamabbr~' @ '~opponentabbr~opponent_possession~' '~' '~teamscore~'-'~opponentscore~'&nbsp;'~state_attr(team, 'clock') | replace('Rain Delay', 'RD') | replace('Delayed', 'Del')~'<br>' }}
+{%- endfor %}
+{{ '</tt></p>' }}
