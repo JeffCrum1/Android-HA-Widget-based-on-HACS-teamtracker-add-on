@@ -1,4 +1,4 @@
-{{ '<p style="text-align: start"; "font-weight: bold"><tt>' }}
+{{ '<p style="text-align: start; font-weight: bold;"><tt>' }}
 {%- set ns = namespace(holdleague='') -%}
 {%- set teams = integration_entities("teamtracker") | expand | selectattr('state', 'eq', 'IN') | selectattr('attributes.team_homeaway', 'eq', 'away') | sort(attribute='attributes.league,attributes.date,attributes.team_abbr') | map(attribute='entity_id') | list -%}
 {%- for team in teams -%}
